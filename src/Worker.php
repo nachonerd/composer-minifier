@@ -30,6 +30,7 @@ namespace NachoNerd\Composer\Minifier;
 
 use Composer\Script\Event;
 use Composer\Installer\PackageEvent;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Worker Class
@@ -41,6 +42,79 @@ use Composer\Installer\PackageEvent;
  * @license   GNU GPL v3
  * @link      https://github.com/nachonerd/silex-markdown-provider
  */
-class Worker {
-
+class Worker
+{
+    /**
+     * MinifierCss
+     *
+     * @param String $css Css no minified
+     *
+     * @return String
+     */
+    public static function minifierCss($css)
+    {
+        $url = 'http://cssminifier.com/raw';
+        $postdata = array(
+            'http' => array(
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/x-www-form-urlencoded',
+                'content' => http_build_query(
+                    array('input' => $css)
+                )
+            )
+        );
+        return file_get_contents($url, false, stream_context_create($postdata));
+    }
+    /**
+     * MinifierJs
+     *
+     * @param String $js JS no minified
+     *
+     * @return String
+     */
+    public static function minifierJs($js)
+    {
+        $url = 'http://javascript-minifier.com/raw';
+        $postdata = array(
+            'http' => array(
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/x-www-form-urlencoded',
+                'content' => http_build_query(
+                    array('input' => $js)
+                )
+            )
+        );
+        return file_get_contents($url, false, stream_context_create($postdata));
+    }
+    /**
+     * MinifierHTML
+     *
+     * @param String $html HTML no minified
+     *
+     * @return String
+     */
+    public static function minifierHTML($html)
+    {
+        $url = 'http://www.willpeavy.com/minifier/';
+        $postdata = array(
+            'http' => array(
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/x-www-form-urlencoded',
+                'content' => http_build_query(
+                    array('html' => $html)
+                )
+            )
+        );
+        $result = file_get_contents($url, false, stream_context_create($postdata));
+        preg_match_all(
+            "/<textarea id=\"html\" name=\"html\">.+<\/textarea>/",
+            $result,
+            $results
+        );
+        return str_replace(
+            array("<textarea id=\"html\" name=\"html\">","</textarea>","\\"),
+            '',
+            $results[0][0]
+        );
+    }
 }
