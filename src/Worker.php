@@ -119,12 +119,60 @@ class Worker
     }
 
     /**
-     * minifier
+     * Run
+     *
+     * @param Composer\Script\Event $event Composer Event
      *
      * @return void
      */
-    public static function minifier(Event $event)
+    public static function run(Event $event)
     {
-        
+        $extra = $event->getComposer()->getPackage()->getExtra();
+        $rootPath = realpath(
+            $event->getComposer()->getConfig()->get('vendor-dir').'/../'
+        )."/";
+        $path = "./";
+        $dest = "./build/";
+        $css = true;
+        $js = true;
+        $html = true;
+
+        if (!isset($extra["minifier"])) {
+            echo "Not found extra minifier config. Using default config...".
+                PHP_EOL;
+        } else {
+            if (isset($extra["minifier"]["path"])) {
+                $path = $extra["minifier"]["path"];
+            }
+            if (isset($extra["minifier"]["dest"])) {
+                $dest = $extra["minifier"]["dest"];
+            }
+            if (isset($extra["minifier"]["ignore-js"])) {
+                $js = !$extra["minifier"]["ignore-js"];
+            }
+            if (isset($extra["minifier"]["ignore-css"])) {
+                $css = !$extra["minifier"]["ignore-css"];
+            }
+            if (isset($extra["minifier"]["ignore-html"])) {
+                $html = !$extra["minifier"]["ignore-html"];
+            }
+        }
+        echo "Destination folder is {$dest}".PHP_EOL;
+        echo "Serching files in {$path} ...".PHP_EOL;
+        if ($html) {
+            echo "Enabled HTML minifier.".PHP_EOL;
+        } else {
+            echo "Disabled HTML minifier.".PHP_EOL;
+        }
+        if ($js) {
+            echo "Enabled JS minifier.".PHP_EOL;
+        } else {
+            echo "Disabled JS minifier.".PHP_EOL;
+        }
+        if ($css) {
+            echo "Enabled CSS minifier.".PHP_EOL;
+        } else {
+            echo "Disabled CSS minifier.".PHP_EOL;
+        }
     }
 }

@@ -868,19 +868,101 @@ HTML;
     }
 
     /**
+     * ProviderRunner
+     *
+     * @return array
+     */
+    public function providerRunner()
+    {
+        $extra = array(
+            "minifier" => array(
+                "path" => "./tests/misc/",
+                "dest" => "./build/test1/",
+                "ignore-css" => false,
+                "ignore-js" => false,
+                "ignore-html" => false,
+                "copy-others-files" => false,
+                "exclude" => array("./README.md")
+            )
+        );
+        $result = <<<TXT
+Destination folder is ./build/test1/
+Serching Files In ./tests/misc/ ...
+Enabled HTML minifier.
+Enabled JS minifier.
+Enabled CSS minifier.
+TXT;
+
+        return array(
+            array(
+                array(),
+                'Not found extra minifier config. Using default config...'
+            ),
+            array(
+                array("this isn't minifier"=> array("some"=>1)),
+                'Not found extra minifier config. Using default config...'
+            ),
+            array(array(), "Serching files in ./ ..."),
+            array($extra, "Serching files in ./tests/misc/ ..."),
+            array(array(), "Destination folder is ./build/"),
+            array($extra, "Destination folder is ./build/test1/"),
+            array(array("minifier" => array("ignore-css" => true)), "Disabled CSS minifier."),
+            array(array("minifier" => array("ignore-css" => false)), "Enabled CSS minifier."),
+            array(array("minifier" => array("ignore-js" => true)), "Disabled JS minifier."),
+            array(array("minifier" => array("ignore-js" => false)), "Enabled JS minifier."),
+            array(array("minifier" => array("ignore-html" => true)), "Disabled HTML minifier."),
+            array(array("minifier" => array("ignore-html" => false)), "Enabled HTML minifier.")
+        );
+    }
+
+    /**
      * TestPostInstallMinifier
      *
-     * @param String $path   Path to Find
-     * @param String $toPath Path to Desc
+     * @param array  $extra  Config
+     * @param string $result Expected Script Output
      *
      * @return void
+     *
+     * @dataProvider providerRunner
      */
-    public function testPostInstallMinifier()
+    public function testPostInstallMinifier($extra, $result)
     {
+        $path = realpath(__DIR__."/../../vendor");
+        $config = $this->getMockBuilder('Composer\Config')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $config->method('get')
+            ->willReturn($path);
+
+        $package = $this->getMockBuilder('Composer\Package\Package')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $package->method('getExtra')
+            ->willReturn($extra);
+
+        $composer = $this->getMockBuilder('Composer\Composer')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $composer->method('getPackage')
+            ->willReturn($package);
+        $composer->method('getConfig')
+            ->willReturn($config);
+
+        $event = $this->getMockBuilder('Composer\Script\Event')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $event->method('getComposer')
+            ->willReturn($composer);
+
+        ob_start();
+        \NachoNerd\Composer\Minifier\Worker::run($event);
+        $output = ob_get_contents();
+        ob_end_clean();
+
         //$path, $toPath
-        $this->assertEquals(
-            true,
-            true,
+        $this->assertContains(
+            $result,
+            $output,
             'Run minifier all files fail'
         );
     }
