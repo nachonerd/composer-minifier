@@ -117,4 +117,14 @@ class Worker
             $results[0][0]
         );
     }
+
+    /**
+     * minifier
+     *
+     * @return void
+     */
+    public static function minifier(Event $event)
+    {
+        
+    }
 }
