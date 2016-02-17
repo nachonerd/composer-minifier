@@ -911,7 +911,8 @@ TXT;
             array(array("minifier" => array("ignore-js" => true)), "Disabled JS minifier."),
             array(array("minifier" => array("ignore-js" => false)), "Enabled JS minifier."),
             array(array("minifier" => array("ignore-html" => true)), "Disabled HTML minifier."),
-            array(array("minifier" => array("ignore-html" => false)), "Enabled HTML minifier.")
+            array(array("minifier" => array("ignore-html" => false)), "Enabled HTML minifier."),
+            array(array("minifier" => array("copy-others-files" => true)), "Copying Other Files...")
         );
     }
 

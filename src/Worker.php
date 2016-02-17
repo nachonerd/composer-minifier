@@ -136,6 +136,7 @@ class Worker
         $css = true;
         $js = true;
         $html = true;
+        $others = false;
 
         if (!isset($extra["minifier"])) {
             echo "Not found extra minifier config. Using default config...".
@@ -156,23 +157,67 @@ class Worker
             if (isset($extra["minifier"]["ignore-html"])) {
                 $html = !$extra["minifier"]["ignore-html"];
             }
+            if (isset($extra["minifier"]["copy-others-files"])) {
+                $others = $extra["minifier"]["copy-others-files"];
+            }
         }
         echo "Destination folder is {$dest}".PHP_EOL;
         echo "Serching files in {$path} ...".PHP_EOL;
         if ($html) {
             echo "Enabled HTML minifier.".PHP_EOL;
+            $finder = new Finder();
+            $finder->files()->name("*.html")->in(
+                realpath($rootPath.$path)
+            )->exclude('vendor')->exclude('coverage');
+            foreach ($finder as $file) {
+                echo "    ".$file->getRealpath().PHP_EOL;
+                echo "    ".realpath($rootPath.$dest)."/".$file->getRelativePathname().PHP_EOL;
+            }
         } else {
             echo "Disabled HTML minifier.".PHP_EOL;
         }
         if ($js) {
             echo "Enabled JS minifier.".PHP_EOL;
+            $finder = new Finder();
+            $finder->files()->name("*.js")->in(
+                realpath($rootPath.$path)
+            )->exclude('vendor')->exclude('coverage');
+            foreach ($finder as $file) {
+                echo "    ".$file->getRealpath().PHP_EOL;
+                echo "    ".realpath($rootPath.$dest)."/".$file->getRelativePathname().PHP_EOL;
+            }
         } else {
             echo "Disabled JS minifier.".PHP_EOL;
         }
         if ($css) {
             echo "Enabled CSS minifier.".PHP_EOL;
+            $finder = new Finder();
+            $finder->files()->name("*.css")->in(
+                realpath($rootPath.$path)
+            )->exclude('vendor')->exclude('coverage');
+            foreach ($finder as $file) {
+                echo "    ".$file->getRealpath().PHP_EOL;
+                echo "    ".realpath($rootPath.$dest)."/".$file->getRelativePathname().PHP_EOL;
+            }
         } else {
             echo "Disabled CSS minifier.".PHP_EOL;
+        }
+        if ($others) {
+            echo "Copying Other Files...".PHP_EOL;
+            $finder = new Finder();
+            $finder->files()->notName(
+                '*.html'
+            )->notName(
+                '*.js'
+            )->notName(
+                '*.css'
+            )->in(
+                realpath($rootPath.$path)
+            )->exclude('vendor')->exclude('coverage');
+            foreach ($finder as $file) {
+                echo "    ".$file->getRealpath().PHP_EOL;
+                echo "    ".realpath($rootPath.$dest)."/".$file->getRelativePathname().PHP_EOL;
+            }
         }
     }
 }
